@@ -1,33 +1,21 @@
 pipeline {
     agent any
-
+    
     environment {
         VERCEL_TOKEN = credentials('vercel_token')
+        
     }
-
+    
+    tools {
+        nodejs 'NodeJS-18'  // Match the name you gave in Global Tool Configuration
+    }
+    
     stages {
         stage('Install') {
             steps {
                sh 'npm install'
             }
         }
-
-        stage('Test') {
-            steps {
-               sh 'echo "Skipping tests - not found"'
-            }
-        }
-
-        stage('Build') {
-            steps {
-               sh 'npm run build'
-            }
-        }
-
-        stage('Deploy') {
-            steps {
-               sh 'npx vercel --prod --yes --token=$VERCEL_TOKEN'
-            }
-        }
+        // ... rest of your stages
     }
 }
