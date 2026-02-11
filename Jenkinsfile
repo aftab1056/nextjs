@@ -3,11 +3,8 @@ pipeline {
     
     environment {
         VERCEL_TOKEN = credentials('vercel_token')
-        
-    }
-    
-    tools {
-        nodejs 'NodeJS-18'  // Match the name you gave in Global Tool Configuration
+        // Optional: Add PATH if npm still not found
+        // PATH = "/usr/bin:${env.PATH}"
     }
     
     stages {
@@ -16,6 +13,15 @@ pipeline {
                sh 'npm install'
             }
         }
-        // ... rest of your stages
+        stage('Build') {
+            steps {
+               sh 'npm run build'
+            }
+        }
+        stage('Deploy') {
+            steps {
+               sh 'npx vercel --prod --yes --token=$VERCEL_TOKEN'
+            }
+        }
     }
 }
