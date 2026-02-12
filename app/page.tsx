@@ -31,7 +31,7 @@ export default function Contact() {
 
   return (
     <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">I am Aftab Jamiil</h2>
+      <h2 className="text-xl font-bold mb-4">I am Aftab Jamiil me to</h2>
       <form onSubmit={handleSubmit} className="space-y-3">
         <input
           type="text"
