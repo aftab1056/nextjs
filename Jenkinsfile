@@ -2,11 +2,21 @@ pipeline {
     agent any
 
     environment {
-        // Ensure 'vercel_token' matches the ID in your Jenkins Credentials Provider
         VERCEL_TOKEN = credentials('vercel_token')
     }
 
+    tools {
+        nodejs "Node24" 
+    }
+
     stages {
+        stage('Check Version') {
+            steps {
+                sh 'node -v'
+                sh 'npm -v'
+            } // This was the missing brace!
+        }
+
         stage('Install') {
             steps {
                 sh 'npm install'
@@ -15,7 +25,6 @@ pipeline {
 
         stage('Test') {
             steps {
-                // Use echo instead of a raw string to avoid shell errors
                 echo 'Skipping tests - no test suite found.'
             }
         }
@@ -28,7 +37,6 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                // Use double quotes to ensure the environment variable is passed correctly
                 sh "npx vercel --prod --yes --token=$VERCEL_TOKEN"
             }
         }
