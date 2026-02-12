@@ -2,21 +2,34 @@ pipeline {
     agent any
 
     environment {
-        // Ensure 'vercel-token' is set up in Jenkins Credentials
         VERCEL_TOKEN = credentials('vercel_token')
+        NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
     }
 
     stages {
-        stage('Install') {
+
+        stage('Node Check') {
             steps {
-                sh 'npm install'
+                sh '''
+                    echo "Node version:"
+                    node -v
+                    echo "npm version:"
+                    npm -v
+                '''
+            }
+        }
+
+        stage('Install Dependencies') {
+            steps {
+                sh '''
+                    npm ci
+                '''
             }
         }
 
         stage('Test') {
             steps {
-                // Using 'echo' instead of trying to execute a string as a command
-                echo 'Skipping tests - none found'
+                echo 'No tests defined — skipping'
             }
         }
 
@@ -26,13 +39,13 @@ pipeline {
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy to Vercel') {
             steps {
-                /* In Linux 'sh', we use $VERCEL_TOKEN. 
-                   Single quotes prevent the shell from interpreting the variable, 
-                   allowing Jenkins to pass it securely.
-                */
-                sh 'npx vercel --prod --yes --token=$VERCEL_TOKEN'
+                sh '''
+                    npx vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+                    npx vercel build --prod --token=$VERCEL_TOKEN
+                    npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+                '''
             }
         }
     }
