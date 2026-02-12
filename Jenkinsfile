@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'node24'
+    }
+
     environment {
         VERCEL_TOKEN = credentials('vercel_token')
         NPM_CONFIG_CACHE = "${WORKSPACE}/.npm"
@@ -8,7 +12,7 @@ pipeline {
 
     stages {
 
-        stage('Node Check') {
+        stage('Verify Node') {
             steps {
                 sh '''
                     echo "Node version:"
@@ -21,9 +25,7 @@ pipeline {
 
         stage('Install Dependencies') {
             steps {
-                sh '''
-                    npm ci
-                '''
+                sh 'npm ci'
             }
         }
 
@@ -47,6 +49,15 @@ pipeline {
                     npx vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
                 '''
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Pipeline completed successfully 🚀'
+        }
+        failure {
+            echo 'Pipeline failed ❌ Check logs above.'
         }
     }
 }
