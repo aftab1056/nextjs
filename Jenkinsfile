@@ -38,6 +38,39 @@
 // }
 
 
+// node {
+//     def appDir = '/var/www/nextjs-app'
+
+//     stage('Clean Workspace') {
+//         echo 'cleaning jenkins workspace'
+//         deleteDir()
+//     }
+
+//     stage('Cloning Repo') {
+//         echo 'cloning the repo'
+//         git(
+//             branch: 'main',
+//             url: 'https://github.com/aftab1056/nextjs'
+//         )
+//     }
+
+//     stage('Deploy to EC2') {
+//         echo 'deploying to ec2'
+
+//         sh """
+//             sudo mkdir -p ${appDir}
+//             sudo chown -R jenkins:jenkins ${appDir}
+//             rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ${appDir}
+//             cd ${appDir}
+//             sudo npm install
+//             sudo npm run build
+//             sudo fuser -k 3000/tcp || true
+//             sudo npm run start &
+//         """
+//     }
+// }
+
+
 node {
     def appDir = '/var/www/nextjs-app'
 
@@ -58,14 +91,21 @@ node {
         echo 'deploying to ec2'
 
         sh """
-            sudo mkdir -p ${appDir}
-            sudo chown -R jenkins:jenkins ${appDir}
+            mkdir -p ${appDir}
+            chown -R jenkins:jenkins ${appDir}
             rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ${appDir}
             cd ${appDir}
-            sudo npm install
-            sudo npm run build
-            sudo fuser -k 3000/tcp || true
-            sudo npm run start &
+
+            # Load NVM for Jenkins user
+            export NVM_DIR="/var/lib/jenkins/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            nvm use 24.13.1
+
+            npm install
+            npm run build
+            fuser -k 3000/tcp || true
+            npm run start &
         """
     }
 }
