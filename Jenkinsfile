@@ -71,41 +71,55 @@
 // }
 
 
-node {
-    def appDir = '/var/www/nextjs-app'
+pipeline {
+    agent any 
 
-    stage('Clean Workspace') {
-        echo 'cleaning jenkins workspace'
-        deleteDir()
+    environment {
+        CONTAINER_NAME = "nextjs"
+        IMAGE_NAME = 'nextjs-image'
+        EMAIL = 'aftabjamil760@gmail.com'
+        PORT = "3000"
     }
 
-    stage('Cloning Repo') {
-        echo 'cloning the repo'
-        git(
-            branch: 'main',
-            url: 'https://github.com/aftab1056/nextjs'
-        )
-    }
-
-    stage('Deploy to EC2') {
-        echo 'deploying to ec2'
-
-        sh """
-            mkdir -p ${appDir}
-            chown -R jenkins:jenkins ${appDir}
-            rsync -av --delete --exclude='.git' --exclude='node_modules' ./ ${appDir}
-            cd ${appDir}
-
-            # Load NVM for Jenkins user
-            export NVM_DIR="/var/lib/jenkins/.nvm"
-            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-            nvm use 24.13.1
-
-            npm install
-            npm run build
-            fuser -k 3000/tcp || true
-            npm run start &
-        """
+    stages {
+        ('Clone Repo'){
+            steps{
+                git branch: 'main', url: 'https://github.com/aftab1056/nextj'
+            }
+        }
+        stage('Build Docker image'){
+            steps {
+                sh 'docker build -t $IMAGE_NAME'
+            }
+        }
+         stage('Stop & Remove Previous Container'){
+            steps {
+                sh '''
+                    docker stop $CONTAINER_NAME || 
+                    true
+                    docker rm $ONTAINER_NAME || true
+                    '''
+            }
+        }
+        stage('Docker & Container Run'){
+            steps{
+                sh '''
+                    docker run -d -p ${PORT}:{PORT}
+                    --name $CONTAINER_NAME $IMAGE_NAME
+                    '''
+            }
+        }
+        
+        stage('Send Email Notification'){
+            steps{
+                emailtext(
+                    subject: "nextjs app deployed successfully on ec2!"
+                    body:   "http://3.26.188.211:${EMAIL}/"
+                    to:  "${EMAIL}"
+                )
+                   
+            }
+        }
+        
     }
 }
