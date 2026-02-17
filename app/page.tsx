@@ -3,6 +3,6 @@ import { useState } from "react";
 
 export default function Contact() {
  return (
-  <h1>Contact Page</h1>
+  <h1>Contact Pages</h1>
   )
 }
