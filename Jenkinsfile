@@ -113,8 +113,8 @@ pipeline {
         stage('Send Email Notification'){
             steps{
                 emailtext(
-                    subject: "nextjs app deployed successfully on ec2!"
-                    body:   "http://3.26.188.211:${EMAIL}/"
+                    subject: "nextjs app deployed successfully on ec2!",
+                    body:   "http://3.26.188.211:${PORT}/",
                     to:  "${EMAIL}"
                 )
                    
