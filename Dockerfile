@@ -2,7 +2,7 @@ FROM node:18-alpine
 
 WORKDIR /app
 
-COPY pacakage*.json .
+COPY package*.json ./
 RUN npm install
 
 #first dot source code and second docker container working directory
