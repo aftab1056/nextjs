@@ -82,14 +82,14 @@ pipeline {
     }
 
     stages {
-        ('Clone Repo'){
+        stage('Clone Repo'){
             steps{
-                git branch: 'main', url: 'https://github.com/aftab1056/nextj'
+                git branch: 'main', url: 'https://github.com/aftab1056/nextjs'
             }
         }
         stage('Build Docker image'){
             steps {
-                sh 'docker build -t $IMAGE_NAME'
+                sh 'docker build -t $IMAGE_NAME .'
             }
         }
          stage('Stop & Remove Previous Container'){
@@ -97,14 +97,14 @@ pipeline {
                 sh '''
                     docker stop $CONTAINER_NAME || 
                     true
-                    docker rm $ONTAINER_NAME || true
+                    docker rm $CONTAINER_NAME || true
                     '''
             }
         }
         stage('Docker & Container Run'){
             steps{
                 sh '''
-                    docker run -d -p ${PORT}:{PORT}
+                    docker run -d -p ${PORT}:${PORT}
                     --name $CONTAINER_NAME $IMAGE_NAME
                     '''
             }
